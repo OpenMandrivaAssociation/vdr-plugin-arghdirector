@@ -2,7 +2,7 @@
 %define plugin	arghdirector
 %define name	vdr-plugin-%plugin
 %define version	0.2.6
-%define rel	14
+%define rel	15
 
 Summary:	VDR plugin: plugin to use the premiere multifeed option
 Name:		%name
@@ -12,8 +12,10 @@ Group:		Video
 License:	GPL
 URL:		http://www.arghgra.de/arghdirector.html
 Source:		http://www.arghgra.de/vdr-%plugin-%version.tar.bz2
+Patch0:		arghdirector-0.2.6-fonts-1.6.patch
+Patch1:		arghdirector-0.2.6-i18n-1.6.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	vdr-devel >= 1.4.1-6
+BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
 %description
@@ -23,6 +25,9 @@ channels(Direkt,Sport1,Sport2).
 %prep
 %setup -q -n %plugin-%version
 chmod a-x HISTORY README
+%patch0 -p1
+%patch1 -p1
+%vdr_plugin_prep
 
 %build
 %vdr_plugin_build
