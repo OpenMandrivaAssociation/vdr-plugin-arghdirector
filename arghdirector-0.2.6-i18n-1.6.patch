@@ -1,0 +1,857 @@
+
+This is a semi-automatically created i18n adaptation patch and may contain
+errors (such as missing translations). This should only be used as a
+temporary measure until the upstream plugin maintainer fixes the plugin
+properly according to the instructions in i18n-to-gettext.pl.
+
+Created for Mandriva Linux packaging by Anssi Hannula <anssi@mandriva.org>.
+
+
+Index: arghdirector-0.2.6/Makefile
+===================================================================
+--- arghdirector-0.2.6/Makefile
++++ arghdirector-0.2.6/Makefile	2008-04-16 13:25:45.000000000 +0300
+@@ -50,7 +50,7 @@
+ 
+ ### The object files (add further files here):
+ 
+-OBJS = $(PLUGIN).o directorosd.o i18n.o osdproxy.o menudirector.o
++OBJS = $(PLUGIN).o directorosd.o  osdproxy.o menudirector.o
+ 
+ ### Implicit rules:
+ 
+@@ -66,9 +66,34 @@
+ 
+ -include $(DEPFILE)
+ 
++### Internationalization (I18N):
++
++PODIR     = po
++LOCALEDIR = $(VDRDIR)/locale
++I18Npo    = $(wildcard $(PODIR)/*.po)
++I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
++I18Npot   = $(PODIR)/$(PLUGIN).pot
++
++%.mo: %.po
++	msgfmt -c -o $@ $<
++
++$(I18Npot): $(wildcard *.[ch] *.[ch]xx *.cc *.[ch]pp *.hh)
++	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<http://qa.mandriva.com/>' -o $@ $^
++
++%.po: $(I18Npot)
++	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
++	@touch $@
++
++$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
++	@mkdir -p $(dir $@)
++	cp $< $@
++
++.PHONY: i18n
++i18n: $(I18Nmsgs)
++
+ ### Targets:
+ 
+-all: libvdr-$(PLUGIN).so
++all: libvdr-$(PLUGIN).so i18n
+ 
+ libvdr-$(PLUGIN).so: $(OBJS)
+ 	$(CXX) $(CXXFLAGS) -shared $(OBJS) -o $@
+@@ -83,4 +108,5 @@
+ 	@echo Distribution package created as $(PACKAGE).tgz
+ 
+ clean:
++	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
+ 	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz core* *~
+Index: arghdirector-0.2.6/arghdirector.c
+===================================================================
+--- arghdirector-0.2.6/arghdirector.c
++++ arghdirector-0.2.6/arghdirector.c	2008-04-16 13:25:45.000000000 +0300
+@@ -6,7 +6,7 @@
+  * $Id$
+  */
+ 
+-#include "i18n.h"
++
+ #include "arghdirector.h"
+ #include "directorosd.h"
+ 
+@@ -85,7 +85,7 @@
+ bool cPluginDirector::Start(void)
+ {
+   // Start any background activities the plugin shall perform.
+-  RegisterI18n(Phrases);
++  
+ 
+ #if VDRVERSNUM >= 10332
+   if(autoStart == 1)
+Index: arghdirector-0.2.6/i18n.c
+===================================================================
+--- arghdirector-0.2.6/i18n.c
++++ arghdirector-0.2.6/i18n.c	2008-04-16 13:25:45.000000000 +0300
+@@ -1,319 +0,0 @@
+- /*
+- * autotimer.c: A plugin for the Video Disk Recorder
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.c Exp $
+- */
+-
+-#include "i18n.h"
+-
+-const tI18nPhrase Phrases[] = {
+-  { "Hide main menu entry",
+-    "Hauptmenüeintrag verstecken",
+-    "",// TODO
+-    "Nascondi voce nel menù principale",// Italiano
+-    "",// TODO
+-    "",// TODO
+-    "Invisible dans le menu principal",
+-    "",// TODO
+-    "Piilota valinta päävalikosta",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO 
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-  { "Swap up and down",
+-    "Tasten auf und ab vertauschen",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-  { "Swap up and down in menu",
+-    "Tasten auf und ab im Menü vertauschen",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-  { "Portal Mode",
+-    "Portal Mode",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+- { "Display info on channel change",
+-    "Kanalinfo beim umschalten anzeigen",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-
+- { "Switch channel on linkchannel selection",
+-    "Kanal umschalten bei Linkkanal-Auswahl",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+- { "Hide plugin after channel switch",
+-    "Plugin nach Kanal schalten verstecken",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+- { "Display channel shortcut numbers",
+-    "Anzeige von Kanal Direktwahl-Nummern",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+- { "No EPG information available",
+-    "Keine EPG Information verfügbar",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-{ "Display EPG information",
+-    "EPG Informationen anzeigen",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-{ "Show old director OSD",
+-    "Altes Director-OSD anzeigen",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-{ "Autostart plugin on reference-channels",
+-    "Autostart des Plugins auf Referenzkanälen",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-{ "Show plugin again on button",
+-    "Plugin erneut anzeigen bei Taste",
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-    "",// TODO
+-#if VDRVERSNUM && VDRVERSNUM >= 10313
+-    "", // Eesti
+-#if VDRVERSNUM >= 10316
+-    "", // Dansk
+-#endif
+-#endif
+-  },
+-  { NULL }
+-  };
+Index: arghdirector-0.2.6/i18n.h
+===================================================================
+--- arghdirector-0.2.6/i18n.h
++++ arghdirector-0.2.6/i18n.h	2008-04-16 13:25:45.000000000 +0300
+@@ -1,16 +0,0 @@
+-/*
+- * autotimer.c: A plugin for the Video Disk Recorder
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.h 1.0 Exp $
+- */
+-
+-#ifndef _I18N__H
+-#define _I18N__H
+-
+-#include <vdr/i18n.h>
+-
+-extern const tI18nPhrase Phrases[];
+-
+-#endif //_I18N__H
+Index: arghdirector-0.2.6/po/arghdirector.pot
+===================================================================
+--- arghdirector-0.2.6/po/arghdirector.pot
++++ arghdirector-0.2.6/po/arghdirector.pot	2008-04-16 13:25:45.000000000 +0300
+@@ -0,0 +1,81 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the PACKAGE package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 13:25+0300\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: arghdirector.c:170
++msgid "Hide main menu entry"
++msgstr ""
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "no"
++msgstr ""
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "yes"
++msgstr ""
++
++#: arghdirector.c:171
++msgid "Swap up and down"
++msgstr ""
++
++#: arghdirector.c:172
++msgid "Swap up and down in menu"
++msgstr ""
++
++#: arghdirector.c:173
++msgid "Portal Mode"
++msgstr ""
++
++#: arghdirector.c:174
++msgid "Display info on channel change"
++msgstr ""
++
++#: arghdirector.c:175
++msgid "Switch channel on linkchannel selection"
++msgstr ""
++
++#: arghdirector.c:176
++msgid "Hide plugin after channel switch"
++msgstr ""
++
++#: arghdirector.c:177
++msgid "Display channel shortcut numbers"
++msgstr ""
++
++#: arghdirector.c:178
++msgid "Display EPG information"
++msgstr ""
++
++#: arghdirector.c:179
++msgid "Show old director OSD"
++msgstr ""
++
++#: arghdirector.c:180
++msgid "Show plugin again on button"
++msgstr ""
++
++#: arghdirector.c:183
++msgid "Autostart plugin on reference-channels"
++msgstr ""
++
++#: menudirector.c:239
++msgid "No EPG information available"
++msgstr ""
+Index: arghdirector-0.2.6/po/de_DE.po
+===================================================================
+--- arghdirector-0.2.6/po/de_DE.po
++++ arghdirector-0.2.6/po/de_DE.po	2008-04-16 13:25:45.000000000 +0300
+@@ -0,0 +1,80 @@
++# VDR arghdirector plugin language source file.
++# Copyright (C) YEAR THE VDR-arghdirector'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-arghdirector package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-arghdirector\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 13:25+0300\n"
++"PO-Revision-Date: 2008-04-16 13:25+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: arghdirector.c:170
++msgid "Hide main menu entry"
++msgstr "Hauptmenüeintrag verstecken"
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "no"
++msgstr ""
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "yes"
++msgstr ""
++
++#: arghdirector.c:171
++msgid "Swap up and down"
++msgstr "Tasten auf und ab vertauschen"
++
++#: arghdirector.c:172
++msgid "Swap up and down in menu"
++msgstr "Tasten auf und ab im Menü vertauschen"
++
++#: arghdirector.c:173
++msgid "Portal Mode"
++msgstr "Portal Mode"
++
++#: arghdirector.c:174
++msgid "Display info on channel change"
++msgstr "Kanalinfo beim umschalten anzeigen"
++
++#: arghdirector.c:175
++msgid "Switch channel on linkchannel selection"
++msgstr "Kanal umschalten bei Linkkanal-Auswahl"
++
++#: arghdirector.c:176
++msgid "Hide plugin after channel switch"
++msgstr "Plugin nach Kanal schalten verstecken"
++
++#: arghdirector.c:177
++msgid "Display channel shortcut numbers"
++msgstr "Anzeige von Kanal Direktwahl-Nummern"
++
++#: arghdirector.c:178
++msgid "Display EPG information"
++msgstr "EPG Informationen anzeigen"
++
++#: arghdirector.c:179
++msgid "Show old director OSD"
++msgstr "Altes Director-OSD anzeigen"
++
++#: arghdirector.c:180
++msgid "Show plugin again on button"
++msgstr "Plugin erneut anzeigen bei Taste"
++
++#: arghdirector.c:183
++msgid "Autostart plugin on reference-channels"
++msgstr "Autostart des Plugins auf Referenzkanälen"
++
++#: menudirector.c:239
++msgid "No EPG information available"
++msgstr "Keine EPG Information verfügbar"
+Index: arghdirector-0.2.6/po/fi_FI.po
+===================================================================
+--- arghdirector-0.2.6/po/fi_FI.po
++++ arghdirector-0.2.6/po/fi_FI.po	2008-04-16 13:25:45.000000000 +0300
+@@ -0,0 +1,80 @@
++# VDR arghdirector plugin language source file.
++# Copyright (C) YEAR THE VDR-arghdirector'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-arghdirector package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-arghdirector\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 13:25+0300\n"
++"PO-Revision-Date: 2008-04-16 13:25+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: arghdirector.c:170
++msgid "Hide main menu entry"
++msgstr "Piilota valinta päävalikosta"
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "no"
++msgstr ""
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "yes"
++msgstr ""
++
++#: arghdirector.c:171
++msgid "Swap up and down"
++msgstr ""
++
++#: arghdirector.c:172
++msgid "Swap up and down in menu"
++msgstr ""
++
++#: arghdirector.c:173
++msgid "Portal Mode"
++msgstr ""
++
++#: arghdirector.c:174
++msgid "Display info on channel change"
++msgstr ""
++
++#: arghdirector.c:175
++msgid "Switch channel on linkchannel selection"
++msgstr ""
++
++#: arghdirector.c:176
++msgid "Hide plugin after channel switch"
++msgstr ""
++
++#: arghdirector.c:177
++msgid "Display channel shortcut numbers"
++msgstr ""
++
++#: arghdirector.c:178
++msgid "Display EPG information"
++msgstr ""
++
++#: arghdirector.c:179
++msgid "Show old director OSD"
++msgstr ""
++
++#: arghdirector.c:180
++msgid "Show plugin again on button"
++msgstr ""
++
++#: arghdirector.c:183
++msgid "Autostart plugin on reference-channels"
++msgstr ""
++
++#: menudirector.c:239
++msgid "No EPG information available"
++msgstr ""
+Index: arghdirector-0.2.6/po/fr_FR.po
+===================================================================
+--- arghdirector-0.2.6/po/fr_FR.po
++++ arghdirector-0.2.6/po/fr_FR.po	2008-04-16 13:25:45.000000000 +0300
+@@ -0,0 +1,80 @@
++# VDR arghdirector plugin language source file.
++# Copyright (C) YEAR THE VDR-arghdirector'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-arghdirector package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-arghdirector\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 13:25+0300\n"
++"PO-Revision-Date: 2008-04-16 13:25+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: arghdirector.c:170
++msgid "Hide main menu entry"
++msgstr "Invisible dans le menu principal"
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "no"
++msgstr ""
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "yes"
++msgstr ""
++
++#: arghdirector.c:171
++msgid "Swap up and down"
++msgstr ""
++
++#: arghdirector.c:172
++msgid "Swap up and down in menu"
++msgstr ""
++
++#: arghdirector.c:173
++msgid "Portal Mode"
++msgstr ""
++
++#: arghdirector.c:174
++msgid "Display info on channel change"
++msgstr ""
++
++#: arghdirector.c:175
++msgid "Switch channel on linkchannel selection"
++msgstr ""
++
++#: arghdirector.c:176
++msgid "Hide plugin after channel switch"
++msgstr ""
++
++#: arghdirector.c:177
++msgid "Display channel shortcut numbers"
++msgstr ""
++
++#: arghdirector.c:178
++msgid "Display EPG information"
++msgstr ""
++
++#: arghdirector.c:179
++msgid "Show old director OSD"
++msgstr ""
++
++#: arghdirector.c:180
++msgid "Show plugin again on button"
++msgstr ""
++
++#: arghdirector.c:183
++msgid "Autostart plugin on reference-channels"
++msgstr ""
++
++#: menudirector.c:239
++msgid "No EPG information available"
++msgstr ""
+Index: arghdirector-0.2.6/po/it_IT.po
+===================================================================
+--- arghdirector-0.2.6/po/it_IT.po
++++ arghdirector-0.2.6/po/it_IT.po	2008-04-16 13:25:45.000000000 +0300
+@@ -0,0 +1,80 @@
++# VDR arghdirector plugin language source file.
++# Copyright (C) YEAR THE VDR-arghdirector'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-arghdirector package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-arghdirector\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 13:25+0300\n"
++"PO-Revision-Date: 2008-04-16 13:25+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: arghdirector.c:170
++msgid "Hide main menu entry"
++msgstr "Nascondi voce nel menù principale"
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "no"
++msgstr ""
++
++#: arghdirector.c:170 arghdirector.c:171 arghdirector.c:172 arghdirector.c:173
++#: arghdirector.c:174 arghdirector.c:175 arghdirector.c:176 arghdirector.c:177
++#: arghdirector.c:178 arghdirector.c:179 arghdirector.c:183
++msgid "yes"
++msgstr ""
++
++#: arghdirector.c:171
++msgid "Swap up and down"
++msgstr ""
++
++#: arghdirector.c:172
++msgid "Swap up and down in menu"
++msgstr ""
++
++#: arghdirector.c:173
++msgid "Portal Mode"
++msgstr ""
++
++#: arghdirector.c:174
++msgid "Display info on channel change"
++msgstr ""
++
++#: arghdirector.c:175
++msgid "Switch channel on linkchannel selection"
++msgstr ""
++
++#: arghdirector.c:176
++msgid "Hide plugin after channel switch"
++msgstr ""
++
++#: arghdirector.c:177
++msgid "Display channel shortcut numbers"
++msgstr ""
++
++#: arghdirector.c:178
++msgid "Display EPG information"
++msgstr ""
++
++#: arghdirector.c:179
++msgid "Show old director OSD"
++msgstr ""
++
++#: arghdirector.c:180
++msgid "Show plugin again on button"
++msgstr ""
++
++#: arghdirector.c:183
++msgid "Autostart plugin on reference-channels"
++msgstr ""
++
++#: menudirector.c:239
++msgid "No EPG information available"
++msgstr ""

@@ -1,0 +1,13 @@
+Index: arghdirector-0.2.6/directorosd.c
+===================================================================
+--- arghdirector-0.2.6/directorosd.c
++++ arghdirector-0.2.6/directorosd.c	2008-04-16 13:30:38.000000000 +0300
+@@ -323,7 +323,7 @@
+ 		char *buffer=0;
+ 		asprintf(&buffer,"1 %s %d", Channel->Name(), number);
+ 				
+-		int theHeigth = font->Height('A');
++		int theHeigth = font->Height();
+ 		int m_height = (number * theHeigth) + 10;
+ 		
+ 		//get the width		
