@@ -3,7 +3,7 @@
 Summary:	VDR plugin: plugin to use the premiere multifeed option
 Name:		vdr-plugin-%plugin
 Version:	0.2.6
-Release:	20
+Release:	21
 Group:		Video
 License:	GPL
 URL:		http://www.arghgra.de/arghdirector.html
