@@ -6,7 +6,7 @@ Version:	0.2.6
 Release:	22
 Group:		Video
 License:	GPL
-URL:		http://www.arghgra.de/arghdirector.html
+URL:		https://www.arghgra.de/arghdirector.html
 Source:		http://www.arghgra.de/vdr-%plugin-%version.tar.bz2
 Patch0:		arghdirector-0.2.6-fonts-1.6.patch
 Patch1:		arghdirector-0.2.6-i18n-1.6.patch
